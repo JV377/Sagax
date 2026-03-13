@@ -5,21 +5,21 @@ import shutil
 import pyttsx3
 import threading
 
-#Definindo o formato que será mostrado na GUI
+# Definindo o formato que será mostrado na GUI
 horario_atual = time.strftime("%H:%M:%S")
-#Pegando a data local atual
+# Pegando a data local atual
 tempo = time.localtime()
-#Pegando o dia, mes e ano
+# Pegando o dia, mes e ano
 dia_mes = tempo.tm_mday
 dia_semana = tempo.tm_wday
 mes = tempo.tm_mon
 ano = tempo.tm_year
-#Pegando a hora
+# Pegando a hora
 hora = tempo.tm_hour
 
-#Verifica que dia é
+# Verifica que dia é
 if dia_semana == 0:
-#Pegando a data atual
+    # Pegando a data atual
     data_atual = time.strftime("Seg %d/%m/%Y")
 elif dia_semana == 1:
     data_atual = time.strftime("Ter %d/%m/%Y")
@@ -34,23 +34,23 @@ elif dia_semana == 5:
 else:
     data_atual = time.strftime("Dom %d/%m/%Y")
 
-#voz-pyttsx3
+# voz-pyttsx3
 voz = pyttsx3.init()
-#Características da voz
-voz.setProperty('rate', 129)
-voz.setProperty('volume', 1.0)
-voz.setProperty('voice', 'pt-br')
+# Características da voz
+voz.setProperty("rate", 129)
+voz.setProperty("volume", 1.0)
+voz.setProperty("voice", "pt-br")
 
 dados = os.getenv("APPDATA")
 pasta = os.path.join(dados, "Sponte")
 os.makedirs(pasta, exist_ok=True)
 pasta_db = os.path.join(pasta, "banco.db")
 
-#Abri pasta
+# Abri pasta
 imagem_pasta = os.path.join(pasta, "imagens")
 os.makedirs(imagem_pasta, exist_ok=True)
 
-#Copiar arquivos para a pasta de imagens
+# Copiar arquivos para a pasta de imagens
 if not os.listdir(imagem_pasta):
     shutil.copy("imagens_app/alerta_padrao.png", imagem_pasta)
     shutil.copy("imagens_app/alerta_azul.png", imagem_pasta)
@@ -69,6 +69,7 @@ if not os.listdir(imagem_pasta):
 
 arquivos_leitura = ["leitura_preto.png", "leitura_branco.png"]
 
+
 def adiciona_imagens_leitura(pasta, arquivos_verifica):
     arquivos = os.listdir(pasta)
     for arq in arquivos_verifica:
@@ -76,10 +77,11 @@ def adiciona_imagens_leitura(pasta, arquivos_verifica):
             shutil.copy("imagens_app/leitura_preto.png", imagem_pasta)
             shutil.copy("imagens_app/leitura_branco.png", imagem_pasta)
 
+
 if len(os.listdir(imagem_pasta)) < 14:
     adiciona_imagens_leitura(imagem_pasta, arquivos_leitura)
 
-#Caminho de arquivos
+# Caminho de arquivos
 alerta_padrao = os.path.join(imagem_pasta, "alerta_padrao.png")
 alerta_azul = os.path.join(imagem_pasta, "alerta_azul.png")
 alerta_vermelho = os.path.join(imagem_pasta, "alerta_vermelho.png")
@@ -92,21 +94,28 @@ alerta_azulmn = os.path.join(imagem_pasta, "alerta_azulmn.png")
 alerta_marrom = os.path.join(imagem_pasta, "alerta_marrom.png")
 alerta_azullogus = os.path.join(imagem_pasta, "alerta_azullogus.png")
 
-def saber_hora():    
+
+def saber_hora():
     hora_atual = tempo.tm_hour
     time.sleep(1)
     return hora_atual
-        
+
+
 def banco_user():
     banco = sqlite3.connect(pasta_db)
     cursor = banco.cursor()
 
-    cursor.execute("""CREATE TABLE IF NOT EXISTS usuario
-                   (nome TEXT NOT NULL, idade INTEGER NOT NULL, mnome TEXT NOT NULL, dia_niver INTEGER NOT NULL, mes_niver INTEGER NOT NULL, cores TEXT NULL, estado_da_voz TEXT NULL, hora_atual INTEGER NOT NULL, dia_atual INTEGER NOT NULL, dia_anterior INTEGER NOT NULL, mes_atual INTEGER NOT NULL, ano_atual INTEGER NOT NULL, dia TEXT NULL, tarde TEXT NULL, noite TEXT NULL)""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS notas 
-                   (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, titulo TEXT NULL, texto TEXT NULL, data_criacao TEXT NULL, data_edita TEXT NULL, fonte INTEGER NOT NULL, materia TEXT NOT NULL, codigo TEXT, tema TEXT, fonte_codigo INTEGER, linguagem TEXT)""")
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS usuario
+                   (nome TEXT NOT NULL, idade INTEGER NOT NULL, mnome TEXT NOT NULL, dia_niver INTEGER NOT NULL, mes_niver INTEGER NOT NULL, cores TEXT NULL, estado_da_voz TEXT NULL, hora_atual INTEGER NOT NULL, dia_atual INTEGER NOT NULL, dia_anterior INTEGER NOT NULL, mes_atual INTEGER NOT NULL, ano_atual INTEGER NOT NULL, dia TEXT NULL, tarde TEXT NULL, noite TEXT NULL)"""
+    )
+    cursor.execute(
+        """CREATE TABLE IF NOT EXISTS notas 
+                   (ID INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, titulo TEXT NULL, texto TEXT NULL, data_criacao TEXT NULL, data_edita TEXT NULL, fonte INTEGER NOT NULL, materia TEXT NOT NULL, codigo TEXT, tema TEXT, fonte_codigo INTEGER, linguagem TEXT)"""
+    )
     banco.commit()
     banco.close()
+
 
 def adiciona_colunas_codigo():
     conexao = sqlite3.connect(pasta_db)
@@ -116,7 +125,7 @@ def adiciona_colunas_codigo():
     for vec in verifica_existencia_coluna:
         colunas.append(vec[1])
     if "codigo" not in colunas:
-       cursor.execute("ALTER TABLE notas ADD COLUMN codigo TEXT")
+        cursor.execute("ALTER TABLE notas ADD COLUMN codigo TEXT")
     if "tema" not in colunas:
         cursor.execute("ALTER TABLE notas ADD COLUMN tema TEXT")
     if "fonte_codigo" not in colunas:
@@ -126,15 +135,32 @@ def adiciona_colunas_codigo():
     conexao.commit()
     conexao.close()
 
+
 def inserir_dados(nome, idade, mnome, dividir):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
     dia_niver = int(dividir[0])
     mes_niver = int(dividir[1])
-    cursor.execute("""INSERT INTO usuario (nome, idade, mnome, dia_niver, mes_niver, hora_atual, dia_atual, mes_atual, ano_atual, cores, dia_anterior)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (nome, idade, mnome, dia_niver, mes_niver, hora, dia_mes, mes, ano, "#EEEBEB", dia_mes))
+    cursor.execute(
+        """INSERT INTO usuario (nome, idade, mnome, dia_niver, mes_niver, hora_atual, dia_atual, mes_atual, ano_atual, cores, dia_anterior)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (
+            nome,
+            idade,
+            mnome,
+            dia_niver,
+            mes_niver,
+            hora,
+            dia_mes,
+            mes,
+            ano,
+            "#EEEBEB",
+            dia_mes,
+        ),
+    )
     conexao.commit()
     conexao.close()
+
 
 def nome():
     conexao = sqlite3.connect(pasta_db)
@@ -143,6 +169,7 @@ def nome():
     for pn in pega_nome:
         pega_nome = pn
     return pega_nome[0]
+
 
 def atualiza_hora():
     hora_certa = saber_hora()
@@ -156,6 +183,7 @@ def atualiza_hora():
         conexao.commit()
         conexao.close()
 
+
 def hora_da_fala_dia(hora_falou):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -166,6 +194,7 @@ def hora_da_fala_dia(hora_falou):
         cursor.execute("UPDATE usuario SET dia = ?", (hora_falou,))
         conexao.commit()
         conexao.close()
+
 
 def verifica_fala_dia():
     conexao = sqlite3.connect(pasta_db)
@@ -180,6 +209,7 @@ def verifica_fala_dia():
         conexao.close()
         return True
 
+
 def hora_da_fala_tarde(hora_falou):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -190,6 +220,7 @@ def hora_da_fala_tarde(hora_falou):
         cursor.execute("UPDATE usuario SET tarde = ?", (hora_falou,))
         conexao.commit()
         conexao.close()
+
 
 def verifica_fala_tarde():
     conexao = sqlite3.connect(pasta_db)
@@ -203,7 +234,8 @@ def verifica_fala_tarde():
     else:
         conexao.close()
         return True
-    
+
+
 def hora_da_fala_noite(hora_falou):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -214,6 +246,7 @@ def hora_da_fala_noite(hora_falou):
         cursor.execute("UPDATE usuario SET noite = ?", (hora_falou,))
         conexao.commit()
         conexao.close()
+
 
 def verifica_fala_noite():
     conexao = sqlite3.connect(pasta_db)
@@ -228,6 +261,7 @@ def verifica_fala_noite():
         conexao.close()
         return True
 
+
 def atualiza_dia():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -238,6 +272,7 @@ def atualiza_dia():
         cursor.execute("UPDATE usuario SET dia_atual = ?", (dia_mes,))
         conexao.commit()
         conexao.close()
+
 
 def verificar_dados():
     conexao = sqlite3.connect(pasta_db)
@@ -259,6 +294,7 @@ def verificar_dados():
         conexao.close()
         return False
 
+
 def reiniciar_ciclo_saudacao():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -277,26 +313,49 @@ def reiniciar_ciclo_saudacao():
         conexao.commit()
         conexao.close()
 
+
 def guarda_titulo_nota(titulo, nota, fonte, data_c, materia):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
-    cursor.execute("""INSERT INTO notas (titulo, texto, fonte, data_criacao, materia) VALUES(?, ?, ?, ?, ?)""", (titulo, nota, fonte, data_c, materia))
+    cursor.execute(
+        """INSERT INTO notas (titulo, texto, fonte, data_criacao, materia) VALUES(?, ?, ?, ?, ?)""",
+        (titulo, nota, fonte, data_c, materia),
+    )
     conexao.commit()
     conexao.close()
 
-def guarda_codigos(titulo, descricao, fonte_descricao, data_criacao, codigo, fonte_codigo, tema, lang):
+
+def guarda_codigos(
+    titulo, descricao, fonte_descricao, data_criacao, codigo, fonte_codigo, tema, lang
+):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
-    cursor.execute("""INSERT INTO notas (titulo, texto, fonte, data_criacao, codigo, fonte_codigo, tema, linguagem, materia) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)""", (titulo, descricao, fonte_descricao, data_criacao, codigo, fonte_codigo, tema, lang, "codigo"))
+    cursor.execute(
+        """INSERT INTO notas (titulo, texto, fonte, data_criacao, codigo, fonte_codigo, tema, linguagem, materia) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (
+            titulo,
+            descricao,
+            fonte_descricao,
+            data_criacao,
+            codigo,
+            fonte_codigo,
+            tema,
+            lang,
+            "codigo",
+        ),
+    )
     conexao.commit()
     conexao.close()
+
 
 def deletar_nota(id):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
     cursor.execute("DELETE from notas WHERE ID = ?", (id,))
     conexao.commit()
-    verificadel = cursor.execute("SELECT EXISTS(SELECT 1 FROM notas WHERE ID = ?)", (id,))
+    verificadel = cursor.execute(
+        "SELECT EXISTS(SELECT 1 FROM notas WHERE ID = ?)", (id,)
+    )
     for d in verificadel:
         verificadel = d
     if verificadel[0] == 0:
@@ -305,11 +364,15 @@ def deletar_nota(id):
     else:
         conexao.close()
         return False
-    
+
+
 def salvar_edicao(data_e, id, titulo_e, texto_e, tipo_n, fonte):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
-    cursor.execute("UPDATE notas SET titulo = ?, texto = ?, data_edita = ?, fonte = ?, materia = ? WHERE ID = ?", (titulo_e, texto_e, data_e, fonte, tipo_n, id))
+    cursor.execute(
+        "UPDATE notas SET titulo = ?, texto = ?, data_edita = ?, fonte = ?, materia = ? WHERE ID = ?",
+        (titulo_e, texto_e, data_e, fonte, tipo_n, id),
+    )
     conexao.commit()
     atualizou = cursor.rowcount
     if atualizou > 0:
@@ -318,11 +381,35 @@ def salvar_edicao(data_e, id, titulo_e, texto_e, tipo_n, fonte):
     else:
         conexao.close()
         return False
-    
-def salvar_edicao_codigo(titulo_e, id, descricao_e, fonte_descricao_e, data_edita_codigo, codigo_e, fonte_codigo_e, tema_e, linguagem_e):
+
+
+def salvar_edicao_codigo(
+    titulo_e,
+    id,
+    descricao_e,
+    fonte_descricao_e,
+    data_edita_codigo,
+    codigo_e,
+    fonte_codigo_e,
+    tema_e,
+    linguagem_e,
+):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
-    cursor.execute("UPDATE notas SET titulo = ?, texto = ?, data_edita = ?, fonte = ?, codigo = ?, fonte_codigo = ?, tema = ?, linguagem = ? WHERE ID = ?", (titulo_e, descricao_e, data_edita_codigo, fonte_descricao_e, codigo_e, fonte_codigo_e, tema_e, linguagem_e, id))
+    cursor.execute(
+        "UPDATE notas SET titulo = ?, texto = ?, data_edita = ?, fonte = ?, codigo = ?, fonte_codigo = ?, tema = ?, linguagem = ? WHERE ID = ?",
+        (
+            titulo_e,
+            descricao_e,
+            data_edita_codigo,
+            fonte_descricao_e,
+            codigo_e,
+            fonte_codigo_e,
+            tema_e,
+            linguagem_e,
+            id,
+        ),
+    )
     conexao.commit()
     atualizou_codigo = cursor.rowcount
     if atualizou_codigo > 0:
@@ -331,6 +418,7 @@ def salvar_edicao_codigo(titulo_e, id, descricao_e, fonte_descricao_e, data_edit
     else:
         conexao.close()
         return False
+
 
 def verifica_guarda_titulo():
     conexao = sqlite3.connect(pasta_db)
@@ -347,6 +435,7 @@ def verifica_guarda_titulo():
     else:
         conexao.close()
         return False
+
 
 def verifica_guarda_codigo():
     conexao = sqlite3.connect(pasta_db)
@@ -365,36 +454,58 @@ def verifica_guarda_codigo():
     resulfonte_c = verificafonte_c.fetchone() is None
     verificalang = cursor.execute("SELECT linguagem FROM notas")
     resullang = verificalang.fetchone() is None
-    if resulti and resultxt and resuldc and resulcodi and resultem and resulfonte_c and resullang == True:
+    if (
+        resulti
+        and resultxt
+        and resuldc
+        and resulcodi
+        and resultem
+        and resulfonte_c
+        and resullang == True
+    ):
         conexao.close()
         return True
     else:
         conexao.close()
         return False
 
+
 def pega_notas():
     try:
         conexao = sqlite3.connect(pasta_db)
         cursor = conexao.cursor()
-        cursor.execute("SELECT ID, titulo, texto, materia, fonte FROM notas WHERE materia != ? ORDER BY ID", ("codigo",))
-        return cursor.fetchall()    
+        cursor.execute(
+            "SELECT ID, titulo, texto, materia, fonte FROM notas WHERE materia != ? ORDER BY ID",
+            ("codigo",),
+        )
+        return cursor.fetchall()
     finally:
         conexao.close()
+
+
 pega_notas()
+
+
 def pega_codigos():
     try:
         conexao = sqlite3.connect(pasta_db)
         cursor = conexao.cursor()
-        cursor.execute("SELECT ID, titulo, texto, fonte, codigo, tema, linguagem, fonte_codigo FROM notas WHERE materia = ? ORDER BY ID", ("codigo",))
+        cursor.execute(
+            "SELECT ID, titulo, texto, fonte, codigo, tema, linguagem, fonte_codigo FROM notas WHERE materia = ? ORDER BY ID",
+            ("codigo",),
+        )
         return cursor.fetchall()
     finally:
         conexao.close()
+
 
 def busca_titulo(titulo, aba):
     try:
         conexao = sqlite3.connect(pasta_db)
         cursor = conexao.cursor()
-        texto_existe = cursor.execute("SELECT titulo FROM notas WHERE titulo = ?", (titulo,))
+        texto_existe = cursor.execute(
+            "SELECT titulo FROM notas WHERE titulo = ?", (titulo,)
+        )
         result = texto_existe.fetchone() is None
         if result == True:
             texto_existe = list(texto_existe)
@@ -403,7 +514,10 @@ def busca_titulo(titulo, aba):
         else:
             texto_existe = list(texto_existe)
             texto_existe.clear()
-            notas_certas = cursor.execute("SELECT ID, titulo, texto, materia, fonte FROM notas WHERE titulo = ?", (titulo,))
+            notas_certas = cursor.execute(
+                "SELECT ID, titulo, texto, materia, fonte FROM notas WHERE titulo = ?",
+                (titulo,),
+            )
             for nc in notas_certas:
                 notas_certas = nc
             if notas_certas[3] == "codigo" and aba == "notas":
@@ -413,52 +527,71 @@ def busca_titulo(titulo, aba):
             elif notas_certas[3] and aba != "codigo":
                 notas_certas = list(notas_certas)
                 notas_certas.clear()
-                cursor.execute("SELECT ID, titulo, texto, materia, fonte FROM notas WHERE titulo = ?", (titulo,))
+                cursor.execute(
+                    "SELECT ID, titulo, texto, materia, fonte FROM notas WHERE titulo = ?",
+                    (titulo,),
+                )
                 return cursor.fetchall()
             elif notas_certas[3] == "codigo" and aba == "codigo":
                 notas_certas = list(notas_certas)
                 notas_certas.clear()
-                cursor.execute("SELECT ID, titulo, texto, fonte, codigo, tema, linguagem, fonte_codigo FROM notas WHERE titulo = ?", (titulo,))
+                cursor.execute(
+                    "SELECT ID, titulo, texto, fonte, codigo, tema, linguagem, fonte_codigo FROM notas WHERE titulo = ?",
+                    (titulo,),
+                )
                 return cursor.fetchall()
     finally:
         conexao.close()
+
 
 def busca_materia(materia):
     try:
         conexao = sqlite3.connect(pasta_db)
         cursor = conexao.cursor()
-        texto_existe = cursor.execute("SELECT materia FROM notas WHERE materia = ?", (materia,))
+        texto_existe = cursor.execute(
+            "SELECT materia FROM notas WHERE materia = ?", (materia,)
+        )
         resulmtr = texto_existe.fetchone() is None
         if resulmtr == True:
             texto_existe = list(texto_existe)
             texto_existe.clear()
             return True
         else:
-            cursor.execute("SELECT ID, titulo, texto, materia, fonte FROM notas WHERE materia = ?", (materia,))
+            cursor.execute(
+                "SELECT ID, titulo, texto, materia, fonte FROM notas WHERE materia = ?",
+                (materia,),
+            )
             return cursor.fetchall()
     finally:
         conexao.close()
+
 
 def busca_lang(lang):
     try:
         conexao = sqlite3.connect(pasta_db)
         cursor = conexao.cursor()
-        texto_existe = cursor.execute("SELECT linguagem FROM notas WHERE linguagem = ?", (lang,))
+        texto_existe = cursor.execute(
+            "SELECT linguagem FROM notas WHERE linguagem = ?", (lang,)
+        )
         resull = texto_existe.fetchone() is None
         if resull == True:
             texto_existe = list(texto_existe)
             texto_existe.clear()
             return True
         else:
-            cursor.execute("SELECT ID, titulo, texto, fonte, codigo, tema, linguagem, fonte_codigo FROM notas WHERE linguagem = ?", (lang,))
+            cursor.execute(
+                "SELECT ID, titulo, texto, fonte, codigo, tema, linguagem, fonte_codigo FROM notas WHERE linguagem = ?",
+                (lang,),
+            )
             return cursor.fetchall()
     finally:
         conexao.close()
 
+
 def pega_cor():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
-    cores = cursor.execute("SELECT cores FROM usuario") 
+    cores = cursor.execute("SELECT cores FROM usuario")
     for c in cores:
         cores = c
     if cores[0] == "#EEEBEB":
@@ -469,13 +602,19 @@ def pega_cor():
         conexao.close()
         return cores[0]
 
+
 def cor_texto():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
     cores = cursor.execute("SELECT cores FROM usuario")
     for c in cores:
         cores = c
-        if cores[0] == "#101A12" or cores[0] == "#000127" or cores[0] == "#1093D4" or cores[0] == "#008000":
+        if (
+            cores[0] == "#101A12"
+            or cores[0] == "#000127"
+            or cores[0] == "#1093D4"
+            or cores[0] == "#008000"
+        ):
             conexao.close()
             return "white"
         elif cores[0] == "#FFB0E0":
@@ -484,7 +623,8 @@ def cor_texto():
         else:
             conexao.close()
             return "black"
-        
+
+
 def cor_texto_hexa():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -498,6 +638,7 @@ def cor_texto_hexa():
             conexao.close()
             return "black"
 
+
 def cor_texto_botao():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -507,7 +648,8 @@ def cor_texto_botao():
     if cores[0] == "#F32A2A":
         conexao.close()
         return "#FAF7F7"
-    
+
+
 def cor_texto_tooltip():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -520,6 +662,7 @@ def cor_texto_tooltip():
     else:
         conexao.close()
         return "black"
+
 
 def cor_labels():
     conexao = sqlite3.connect(pasta_db)
@@ -548,7 +691,8 @@ def cor_labels():
         else:
             conexao.close()
             return "#105ba0"
-        
+
+
 def cor_hover():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -580,6 +724,7 @@ def cor_hover():
             conexao.close()
             return "#0c4478"
 
+
 def cor_fundo():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -595,7 +740,8 @@ def cor_fundo():
         else:
             conexao.close()
             return "white"
-        
+
+
 def cor_notas():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
@@ -626,6 +772,7 @@ def cor_notas():
     elif cores[0] == "#FFB0E0":
         conexao.close()
         return "#877E7E"
+
 
 def cor_borda_place():
     conexao = sqlite3.connect(pasta_db)
@@ -663,6 +810,7 @@ def cor_borda_place():
     else:
         conexao.close()
         return cores[0]
+
 
 def imagem_cor():
     conexao = sqlite3.connect(pasta_db)
@@ -703,7 +851,8 @@ def imagem_cor():
         else:
             conexao.close()
             return alerta_padrao
-        
+
+
 def imagem_ler():
     banco = sqlite3.connect(pasta_db)
     cursor = banco.cursor()
@@ -717,12 +866,14 @@ def imagem_ler():
         banco.close()
         return "leitura_preto.png"
 
+
 def atualiza_cor(cor):
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
     cursor.execute("""UPDATE usuario SET cores = ?""", (cor,))
     conexao.commit()
     conexao.close()
+
 
 def atualiza_estado_voz(voz):
     conexao = sqlite3.connect(pasta_db)
@@ -734,6 +885,7 @@ def atualiza_estado_voz(voz):
         cursor.execute("UPDATE usuario SET estado_da_voz = ?", (voz,))
         conexao.commit()
         conexao.close()
+
 
 def pegar_estado_voz():
     conexao = sqlite3.connect(pasta_db)
@@ -747,6 +899,7 @@ def pegar_estado_voz():
     else:
         conexao.close()
         return "Desativada"
+
 
 def aviso_config():
     voz.say("Aviso: As mudanças, serão aplicadas")
