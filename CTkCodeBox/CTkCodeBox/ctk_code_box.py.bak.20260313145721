@@ -1,4 +1,3 @@
-```python
 """
 CTkCodeBox
 Author: Akash Bora
@@ -9,42 +8,20 @@ import customtkinter
 from .text_menu import TextMenu
 from tklinenums import TkLineNumbers
 from pygments import lex
-from pygments.lexers import (
-    python,
-    javascript,
-    c_cpp,
-    dotnet,
-    html,
-    css,
-    data,
-    go,
-    jvm,
-    php,
-    ruby,
-    rust,
-    scripting,
-    perl,
-    objective,
-    jsx,
-    zig
-)
+from pygments.lexers import python, javascript, c_cpp, dotnet, html, css, data, go, jvm, php, ruby, rust, scripting, perl, objective, jsx, zig
 from pygments.styles import get_style_by_name, get_all_styles
 
-class AddLineNumbers(TkLineNumbers):
+class AddLineNums(TkLineNumbers):
     """
     Class for adding line numbers in CTkTextbox using TkLineNumbers
     """
-    def __init__(self, master, text_color=None, justify="left", padx=30, **kwargs):
-        """
-        Initialize AddLineNumbers widget
+    def __init__(self,
+                 master,
+                 text_color=None,
+                 justify="left",
+                 padx=30,
+                 **kwargs):
 
-        Args:
-            master (CTkTextbox): Master widget
-            text_color (str, optional): Text color. Defaults to None.
-            justify (str, optional): Text justification. Defaults to "left".
-            padx (int, optional): Padding. Defaults to 30.
-            **kwargs: Additional keyword arguments
-        """
         self.master = master
         self.text_color = self.master.cget("border_color") if text_color is None else text_color
         self.fg_color = self.master.cget("fg_color")
@@ -66,54 +43,58 @@ class AddLineNumbers(TkLineNumbers):
         self.master._textbox.bind("<<ContentChanged>>", self.redraw, add=True)
         self.master.bind("<Key>", lambda e: self.after(10, self.redraw), add=True)
 
-    def set_scrollbar(self, x, y):
-        """
-        Set scrollbar
-
-        Args:
-            x (int): X coordinate
-            y (int): Y coordinate
-        """
-        self.redraw(x, y)
-        self.master._y_scrollbar.set(x, y)
+    def set_scrollbar(self, x,y):
+        self.redraw(x,y)
+        self.master._y_scrollbar.set(x,y)
 
     def _set_appearance_mode(self, mode_string):
-        """
-        Set appearance mode
-
-        Args:
-            mode_string (str): Mode string
-        """
         self.colors = (self.master._apply_appearance_mode(self.text_color),
                        self.master._apply_appearance_mode(self.fg_color))
         self.set_colors()
-
+        
 class CTkCodeBox(customtkinter.CTkTextbox):
     """
     Widget for displaying code in CTk
     """
-    def __init__(self, master, language, height=200, **kwargs):
-        """
-        Initialize CTkCodeBox widget
+    def __init__(self,
+                 master,
+                 language,
+                 height=200,
+                 theme:str="solarized-light",
+                 line_numbering:bool=True,
+                 numbering_color:str=None,
+                 undo:bool=True,
+                 menu:bool=True,
+                 menu_fg_color:str=None,
+                 menu_text_color:str=None,
+                 menu_hover_color:str=None,
+                 wrap:bool=True,
+                 select_color:str=None,
+                 cursor_color:str=None,
+                 **kwargs):
+        
+        super().__init__(master, undo=undo, height=height, **kwargs)
+        
+        if wrap:
+            self.configure(wrap="word")
+        if line_numbering:
+            AddLineNums(self, text_color=numbering_color)
+        if menu:
+            TextMenu(self, fg_color=menu_fg_color, text_color=menu_text_color, hover_color=menu_hover_color)
 
-        Args:
-            master (CTk): Master widget
-            language (str or pygments.lexer.Lexer): Language
-            height (int, optional): Height. Defaults to 200.
-            **kwargs: Additional keyword arguments
-        """
-        super().__init__(master, **kwargs)
+        self.select_color = select_color
+        if select_color:
+            self._textbox.config(selectbackground=self.select_color)
+        self.cursor_color = cursor_color
         
-        self.language = language
-        self.check_lexer()
-        self.configure_tags()
-        self.edited = False
-        
+        if self.cursor_color:
+            self._textbox.config(insertbackground=self.cursor_color)
+            
         self.bind('<KeyRelease>', self.update_code)  # When a key is released, update the code
         self.bind('<<ContentChanged>>', self.update_code)
         self.bind("<Control-a>", lambda e: self.after(200, self._select_all), add=True)
         
-        self.theme_name = "solarized-light"
+        self.theme_name = theme
         self.all_themes = list(get_all_styles())
                 
         self.common_langs = {
@@ -141,39 +122,12 @@ class CTkCodeBox(customtkinter.CTkTextbox):
             "react": jsx.JsxLexer,
             "zig": zig.ZigLexer,
         }
-        
-        if "language" in kwargs:
-            self.language = kwargs.pop("language")
-            self.check_lexer()
-        if "theme" in kwargs:
-            self.theme_name = kwargs.pop("theme")
-            self.configure_tags()
-        if "select_color" in kwargs:
-            self.select_color = kwargs.pop("select_color")
-            self._textbox.config(selectbackground=self.select_color)
-        if "cursor_color" in kwargs:
-            self.cursor_color = kwargs.pop("cursor_color")
-            self._textbox.config(insertbackground=self.cursor_color)
-        
-        self.height = height
-        if height:
-            self.configure(height=height)
-        
-        if "wrap" in kwargs:
-            self.configure(wrap=kwargs.pop("wrap"))
-        if "line_numbering" in kwargs:
-            self.line_numbering = kwargs.pop("line_numbering")
-            if self.line_numbering:
-                AddLineNumbers(self)
-        if "menu" in kwargs:
-            self.menu = kwargs.pop("menu")
-            if self.menu:
-                TextMenu(self)
-        
+        self.language = language
+        self.check_lexer()
+        self.configure_tags()
+        self.edited = False
+
     def check_lexer(self):
-        """
-        Check lexer
-        """
         if type(self.language) is str:
             if self.language.lower() in self.common_langs:
                 self.lexer = self.common_langs[self.language.lower()]
@@ -183,9 +137,6 @@ class CTkCodeBox(customtkinter.CTkTextbox):
             self.lexer = self.language
             
     def configure_tags(self):
-        """
-        Configure tags
-        """
         if self.theme_name not in self.all_themes:
             raise ValueError(f"Invalid theme name: {self.theme_name}, \nAvailable themes: {self.all_themes}")
         style = get_style_by_name(self.theme_name)
@@ -195,13 +146,6 @@ class CTkCodeBox(customtkinter.CTkTextbox):
                 self.tag_config(str(token), foreground=f'#{foreground}')
 
     def update_code(self, event=None, edited=True):
-        """
-        Update code
-
-        Args:
-            event (Event, optional): Event. Defaults to None.
-            edited (bool, optional): Edited. Defaults to True.
-        """
         code = self.get('0.0', 'end-1c')
         self.clear_code()
         self.highlight_code(code)
@@ -209,38 +153,19 @@ class CTkCodeBox(customtkinter.CTkTextbox):
             self.edited = True
             
     def clear_code(self):
-        """
-        Clear code
-        """
         for tag in self.tag_names():
             self.tag_remove(tag, '0.0', 'end')
             
     def _select_all(self):
-        """
-        Select all
-        """
         self.tag_add("sel", "0.0", "end")
         
     def insert(self, start, end):
-        """
-        Insert text
-
-        Args:
-            start (str): Start position
-            end (str): End position
-        """
         super().insert(start, end)
         self.update_code(edited=False)
         self.edit_reset()
         self.edited = False
         
     def highlight_code(self, code):
-        """
-        Highlight code
-
-        Args:
-            code (str): Code
-        """
         code = code.replace("\n"," ",1)
         try:
             tokens = list(lex(code, self.lexer()))
@@ -255,13 +180,6 @@ class CTkCodeBox(customtkinter.CTkTextbox):
             start_index = end_index
             
     def configure(self, param=None, **kwargs):
-        """
-        Configure widget
-
-        Args:
-            param (str, optional): Parameter. Defaults to None.
-            **kwargs: Additional keyword arguments
-        """
         if "theme" in kwargs:
             self.theme_name = kwargs.pop("theme")
             self.configure_tags()
@@ -277,11 +195,12 @@ class CTkCodeBox(customtkinter.CTkTextbox):
         super().configure(**kwargs)
 
     def cget(self, param):
-        """
-        Get value of parameter
-
-        Args:
-            param (str): Parameter
-
-        Returns:
-            str
+        if param=="theme":
+            return self.theme_name
+        if param=="language":
+            return self.language
+        if param=="select_color":
+            return self.select_color
+        if param=="cursor_color":
+            return self.cursor_color
+        return super().cget(param)
