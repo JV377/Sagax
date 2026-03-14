@@ -827,13 +827,17 @@ def boa_tarde():
 def boa_noite():
     conexao = sqlite3.connect(pasta_db)
     cursor = conexao.cursor()
+
     nome_usuario = cursor.execute("SELECT nome FROM usuario")
     for nu in nome_usuario:
         nome_usuario = nu
+
     estado_voz = cursor.execute("SELECT estado_da_voz FROM usuario")
     for ev in estado_voz:
         estado_voz = ev
-    if hora >= 18 and hora < 0 and estado_voz[0] == "Ativa" or estado_voz[0] == None:
+
+    if hora >= 18 and (estado_voz[0] == "Ativa" or estado_voz[0] == None):
         voz.say(f"Boa noite {nome_usuario[0]}")
         voz.runAndWait()
+
     conexao.close()
