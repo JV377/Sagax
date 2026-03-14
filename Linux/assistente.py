@@ -5,21 +5,19 @@ import sys
 import shutil
 import pyttsx3
 
-#Definindo o formato que será mostrado na GUI
+
 horario_atual = time.strftime("%H:%M:%S")
-#Pegando a data local atual
+
 tempo = time.localtime()
-#Pegando o dia, mes e ano
+
 dia_mes = tempo.tm_mday
 dia_semana = tempo.tm_wday
 mes = tempo.tm_mon
 ano = tempo.tm_year
-#Pegando a hora
 hora = tempo.tm_hour
 
-#Verifica que dia é
+
 if dia_semana == 0:
-#Pegando a data atual
     data_atual = time.strftime("Seg %d/%m/%Y")
 elif dia_semana == 1:
     data_atual = time.strftime("Ter %d/%m/%Y")
@@ -46,7 +44,7 @@ pasta = os.path.join(dados, "Sponte Study")
 os.makedirs(pasta, exist_ok=True)
 pasta_db = os.path.join(pasta, "banco.db")
 
-#Abri pasta de imagem
+
 imagem_pasta = os.path.join(pasta, "imagens")
 os.makedirs(imagem_pasta, exist_ok=True)
 

@@ -1,16 +1,13 @@
 import customtkinter
 from CTkCodeBox import *
 
-# Create the main application window
 app = customtkinter.CTk()
 app.geometry("400x400")
 app.title("CodeBox Themes")
 
-# Create a CTkLabel to display a title
 title_label = customtkinter.CTkLabel(app, text="CodeBox Examples", font=("Helvetica", 16, "bold"))
 title_label.pack()
 
-# Create a CTkCodeBox with an initial theme
 codebox = CTkCodeBox(app, language="python", theme="solarized-light")
 codebox.pack(padx=10, pady=10, fill="both", expand=True)
 demo_code = """def is_prime(num):
@@ -32,7 +29,6 @@ while count < 10:
 """
 codebox.insert("0.0", demo_code)
 
-# Create a CTkComboBox for theme selection
 theme_values = ['abap', 'arduino', 'autumn', 'borland',
                 'colorful', 'default', 'dracula', 'emacs', 'friendly_grayscale',
                 'friendly', 'fruity', 'github-dark', 'gruvbox-dark', 'gruvbox-light',
