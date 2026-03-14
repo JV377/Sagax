@@ -1,3 +1,0 @@
-pygments
-tklinenums
-customtkinter
