@@ -41,10 +41,17 @@ else:
 # Handles both normal execution and PyInstaller bundled apps
 def verifica_pasta(caminho):
     if hasattr(sys, "_MEIPASS"):    
-        pasta_imagens = sys._MEIPASS
+        base_dir = sys._MEIPASS  # PyInstaller
     else:
-        pasta_imagens = os.path.dirname(sys.executable)
-    return os.path.join(pasta_imagens, caminho)
+        base_dir = os.path.dirname(os.path.abspath(__file__))  # normal execution
+
+    return os.path.join(base_dir, caminho)
+
+# CHANGE:
+# Previously, `sys.executable` was used, which points to the Python binary inside the virtual environment
+# (e.g., venv/bin), causing the program to look for files in the wrong location.
+# Now, `__file__` is used to resolve paths relative to the location of assistente.py,
+# ensuring correct behavior on Linux, Windows, and when bundled with PyInstaller.
 
 
 # Base directory for user application data (~/.local/share)
@@ -90,8 +97,8 @@ def reinicia_pasta(pasta, arquivos_verifica):
 
     for arq in arquivos_verifica:
         if not arq in arquivos:
-            shutil.copy("imagens_app/leitura_preto.png", imagem_pasta)
-            shutil.copy("imagens_app/leitura_branco.png", imagem_pasta)
+            shutil.copy(verifica_pasta("imagens_app/leitura_preto.png"), imagem_pasta)
+            shutil.copy(verifica_pasta("imagens_app/leitura_branco.png"), imagem_pasta)
 
 # Validate image directory contents
 reinicia_pasta(imagem_pasta, arquivos_leitura)
