@@ -32,3 +32,9 @@ Our application boasts a minimally modern and attractive interface, making it ea
 Download Sponte Study today and experience the future of learning:
 
 https://jv377.itch.io/sponte
+
+## Find us
+
+Join our community to meet new people, help us grow, and share your ideas.
+
+https://discord.gg/WBWJrxtC5
