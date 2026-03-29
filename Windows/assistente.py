@@ -1,3 +1,4 @@
+# Importing libraries
 import time
 import sqlite3
 import os
@@ -5,21 +6,21 @@ import shutil
 import pyttsx3
 import threading
 
-#Definindo o formato que será mostrado na GUI
+# Current time formatted as HH:MM:SS
 horario_atual = time.strftime("%H:%M:%S")
-#Pegando a data local atual
+
+# Get current local time structure
 tempo = time.localtime()
-#Pegando o dia, mes e ano
+
+# Extract individual date/time components
 dia_mes = tempo.tm_mday
 dia_semana = tempo.tm_wday
 mes = tempo.tm_mon
 ano = tempo.tm_year
-#Pegando a hora
 hora = tempo.tm_hour
 
-#Verifica que dia é
+# Map numeric weekday to Portuguese abbreviated format
 if dia_semana == 0:
-#Pegando a data atual
     data_atual = time.strftime("Seg %d/%m/%Y")
 elif dia_semana == 1:
     data_atual = time.strftime("Ter %d/%m/%Y")

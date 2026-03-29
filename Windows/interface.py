@@ -1,3 +1,4 @@
+# Importing libraries
 from customtkinter import *
 from tkinter import *
 from CTkToolTip import *
@@ -8,18 +9,23 @@ import os
 import threading
 from PIL import Image
 
+# Creating the initialization/splash window
 class janela_inic(CTk):
     def __init__(self):
         super().__init__()
+        # Call the function to create the database
         banco_user()
+        # Adds columns to the existing database
         adiciona_colunas_codigo()
         self.title("Sponte Study")
         self.geometry("400x270")
         self.resizable(width=False, height=False)
+        # Window icon
         icone = os.path.join(imagem_pasta, "logo.ico")
         self.iconbitmap(icone)
         #imagens_pasta("imagens/logo.ico")
 
+        # Window content
         self.fonte_titulo = CTkFont(family="Helvetica", size=35, weight="bold")
         self.fonte_inic = CTkFont(family="Arial", size=20)
         self.label_logus = CTkLabel(self, text="Sponte Study", text_color="#105ba0", font=(self.fonte_titulo))
@@ -28,10 +34,13 @@ class janela_inic(CTk):
         self.inicializacao.pack(pady=40)
         self.bem_vindo = CTkLabel(self, text="Boas Vindas", text_color="#105ba0", font=(self.fonte_inic))
 
+        # Change the text that appears in the window
         def muda_texto():
             self.inicializacao.destroy()
+        # Add the welcome message
         def boas_vindas():
             self.bem_vindo.pack(pady=40)
+        # Close the window
         def fechar():
             self.destroy()
         
@@ -39,29 +48,38 @@ class janela_inic(CTk):
         self.after(1900, boas_vindas)
         self.after(2500, fechar)
 
+# Window for filling in basic information
 class janela_preench(CTk):
     def __init__(self):
         super().__init__()
+        # Variable that defines whether the data was saved to the database and populated
         global feito
         feito = False
+
+        # List of invalid characters
         caracteres_invalidos = ('!', '@', '#', '$', '%', '"', '&', '*', '()', '=', '+', '[]', '{}', ':', ';', ',', '.', '/', '|', '\\', '?', '_', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
         caracteres_invalidos_niver = ('!', '@', '#', '$', '%', '"', '&', '*', '()', '=', '+', '[]', '{}', ':', ';', ',', '.', '|', '\\', '?', '_', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n' ,'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z')
+        
+        # Window owners
         self.geometry("600x450")
         self.resizable(width=False, height=False)
         self.title("Sponte Study")
         icone = os.path.join(imagem_pasta, "logo.ico")
         self.iconbitmap(icone)
-
+        
+        # Fonts
         self.fonte_conhecer = CTkFont(family="Helvetica", size=30, weight="bold")
         self.fonte_erros = CTkFont(family="Arial", size=20, weight="bold")
                         
         self.titulo = CTkLabel(self, text="Conhecendo-te", font=(self.fonte_conhecer), text_color="#105ba0")
-
+        
+        # Function that inserts hashtag into the hexadecimal color field
         def inserirbarra(evento):
             data_niver = self.data_nasci.get().strip()
             if len(data_niver) == 0:
                 self.data_nasci.insert(0, "Exemplo: 25/8") 
-                        
+        
+        # Send data to the bank       
         def enviando():
             nome = self.nome_caixa.get().strip()
             idade = self.idade_caixa.get().strip()
@@ -69,6 +87,7 @@ class janela_preench(CTk):
             dividir = niver.split("/")
             mnome = self.meunome_caixa.get().strip()
 
+            # Check that they are all filled in correctly
             if len(nome) > 2 and len(idade) > 0 and len(mnome) > 1 and len(niver) >= 3:
                 if any(x in caracteres_invalidos for x in nome) or not idade.isdigit() or any(y in caracteres_invalidos for y in mnome) or any(z in caracteres_invalidos_niver for z in niver):
                     self.botao_enviar.configure(state=DISABLED)
@@ -116,10 +135,13 @@ class janela_preench(CTk):
                         self.after(1200, habilitar_tamanho)
                     elif idade > 5 and idade <= 100 and len(nome) > 2 and len(nome) <= 25 and len(mnome) > 2 and len(mnome) <= 25 and len(niver) >= 3 and len(niver) <= 5:
                         self.botao_enviar.configure(state=DISABLED)
+                        # Send the data
                         inserir_dados(nome, idade, mnome, dividir)
+                        # Check if they were actually stored
                         dados_salvos = verificar_dados()
                         if dados_salvos == False:
                             self.botao_enviar.configure(text="Enviando...")
+                            # Destroys the current window and changes the value of the variable "feito"
                             def destruir_janela():
                                 self.destroy()
                             self.after(1500, destruir_janela)
@@ -143,6 +165,7 @@ class janela_preench(CTk):
                 self.after(1200, erro_vazio.destroy)
                 self.after(1200, habilitar_campos)
 
+        # Fill-in fields
         self.nome_caixa = CTkEntry(self, width=170, placeholder_text="Digite seu nome...", placeholder_text_color="#105ba0", corner_radius=15, border_color="#105ba0")
         self.idade_caixa = CTkEntry(self, width=170, placeholder_text="Digite sua idade...", placeholder_text_color="#105ba0", corner_radius=15, border_color="#105ba0")
         self.data_nasci = CTkEntry(self, width=180, placeholder_text="Digite sua data de niver...", placeholder_text_color="#105ba0", corner_radius=15, border_color="#105ba0")
@@ -150,6 +173,7 @@ class janela_preench(CTk):
         self.meunome_caixa = CTkEntry(self, width=178, placeholder_text="Como deseja me chamar?", placeholder_text_color="#105ba0", corner_radius=15, border_color="#105ba0")
         self.botao_enviar = CTkButton(self, text="Começar", width=100, cursor="hand2", corner_radius=10, border_width=2, border_color="black", fg_color="#105ba0", text_color="white", command=enviando)
 
+        # Position the fields
         def conhecer():
             self.titulo.pack(pady=30)
             self.nome_caixa.pack(pady=15)
@@ -160,15 +184,18 @@ class janela_preench(CTk):
 
         self.after(10, conhecer)
 
+# App window
 class janela_principal(CTk):
     def __init__(self):
         super().__init__()
+        # Window owners
         self.geometry("490x370")
         self.resizable(width=False, height=False)
         self.title("Sponte Study")
         icone = os.path.join(imagem_pasta, "logo.ico")
         self.iconbitmap(icone)
         
+        # Function call
         pg = pega_cor()
         ct = cor_texto()
         ctb = cor_texto_botao()
@@ -184,22 +211,24 @@ class janela_principal(CTk):
         caminho_leitura = imagem_ler()
         self.configure(fg_color=pg)
 
+        # List of invalid characters
         caracteres_invalidos_hexa = ('!', '@', '$', '%', '"', '&', '*', '()', '=', '+', '[]', '{}', ':', ';', ',', '.', '|', '\\', '?', '_')
 
+        # Taking images
         alerta = CTkImage(Image.open(os.path.join(imagem_pasta, caminho_alerta)), size=(17, 17))
         leitura = CTkImage(Image.open(os.path.join(imagem_pasta, caminho_leitura)), size=(13, 13))
 
-        #Definindo a fonte da hora
+        # Defining the time source
         fonte_hora = CTkFont(family="Arial", size=40, weight="bold")
-        #Fonte da data
+        # Date source
         fonte_data = CTkFont(family="Arial", size=18, weight="bold")
-        #Fonte de erros internos
+        # Source of internal errors
         fonte_erros_inter = CTkFont(family="Arial", size=15, weight="bold")
-        #Fonte do label ajuda
+        # Label font help
         fonte_ajuda = CTkFont(family="Arial", size=15, weight="bold")
-        #Fonte para negritos
+        # Font for bold text
         fonte_negrito = CTkFont(family="Arial", size=15, weight="bold")
-        #Fontes das anotações
+        # Sources of notes
         fonte_8 = CTkFont(family="Arial", size=8)
         fonte_10 = CTkFont(family="Arial", size=10)
         fonte_12 = CTkFont(family="Arial", size=12)
@@ -209,13 +238,14 @@ class janela_principal(CTk):
         fonte_20 = CTkFont(family="Arial", size=20)
         fonte_22 = CTkFont(family="Arial", size=22)
         
-        #Pegando hora para GUI
+        # Taking time for GUI
         hora_gui = tempo.tm_hour
 
+        # Update time
         def atualizar_hora_GUI():
-        #Pega a hora atual e coloca no label
+        # Get the current time and put it in the label
             self.label_hora.configure(text=time.strftime("%H:%M:%S"))
-        #Agenda essa atualização
+        # Schedule this update
             self.after(1000, atualizar_hora_GUI)
             self.after(900000, atualiza_hora)
             
