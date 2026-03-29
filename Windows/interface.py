@@ -60,7 +60,7 @@ class janela_preench(CTk):
         def inserirbarra(evento):
             data_niver = self.data_nasci.get().strip()
             if len(data_niver) == 0:
-                self.data_nasci.insert(0, "dd/mm") 
+                self.data_nasci.insert(0, "Exemplo: 25/8") 
                         
         def enviando():
             nome = self.nome_caixa.get().strip()

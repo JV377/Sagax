@@ -131,8 +131,8 @@ def inserir_dados(nome, idade, mnome, dividir):
     cursor = conexao.cursor()
     dia_niver = int(dividir[0])
     mes_niver = int(dividir[1])
-    cursor.execute("""INSERT INTO usuario (nome, idade, mnome, dia_niver, mes_niver, hora_atual, dia_atual, mes_atual, ano_atual, cores, dia_anterior)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (nome, idade, mnome, dia_niver, mes_niver, hora, dia_mes, mes, ano, "#EEEBEB", dia_mes))
+    cursor.execute("""INSERT INTO usuario (nome, idade, mnome, dia_niver, mes_niver, hora_atual, dia_atual, mes_atual, ano_atual, cores, dia_anterior, estado_da_voz)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""", (nome, idade, mnome, dia_niver, mes_niver, hora, dia_mes, mes, ano, "#EEEBEB", dia_mes, "Ativa"))
     conexao.commit()
     conexao.close()
 
@@ -376,7 +376,7 @@ def pega_notas():
     try:
         conexao = sqlite3.connect(pasta_db)
         cursor = conexao.cursor()
-        cursor.execute("SELECT ID, titulo, texto, materia, fonte FROM notas WHERE materia != ? ORDER BY ID", ("codigo",))
+        cursor.execute("SELECT ID, titulo, texto, materia, fonte FROM notas ORDER BY ID")
         return cursor.fetchall()    
     finally:
         conexao.close()
