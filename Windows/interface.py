@@ -249,31 +249,37 @@ class janela_principal(CTk):
             self.after(1000, atualizar_hora_GUI)
             self.after(900000, atualiza_hora)
             
+        # Activate the function to update the day without interrupting the interface
         def atualiza_dia_back():
             self.thread_atualizadia = threading.Thread(target=atualiza_dia, daemon=True)
             self.thread_atualizadia.start()
 
+        # Check if the day has changed and restart the greetings
         def reiniciar_saudacao():
             self.thread_reinicia_saudacao = threading.Thread(target=reiniciar_ciclo_saudacao, daemon=True)
             self.thread_reinicia_saudacao.start()
         
+        # Changes the text when the cursor hovers over the "Config" button
         def explica_config_entra(evento):
             self.label_ajuda.configure(text="Um mundo de customização")
             self.label_ajuda.place(x=45, y=210)
 
+        # Changes the text when the cursor hovers over the "Notas" button
         def explica_notas_entra(evento):
             self.label_ajuda.configure(text="Anote tudo o que quiser")
             self.label_ajuda.place(x=57, y=210)
 
+        # Sets the default text when the cursor leaves the "Config" button
         def explica_config_fora(evento):
             self.label_ajuda.configure(text="Seu app de organização \ncom voz 100% offline")
             self.label_ajuda.place(x=55, y=210)
 
+        # Sets the default text when the cursor leaves the "Notas" button
         def explica_notas_fora(evento):
             self.label_ajuda.configure(text="Seu app de organização \ncom voz 100% offline")
             self.label_ajuda.place(x=55, y=210)
 
-        #Função bom dia/boa (tarde/noite)
+        # Function of greetings
         def saudacao_gui():
             vfd  = verifica_fala_dia()
             vft = verifica_fala_tarde()
@@ -304,16 +310,20 @@ class janela_principal(CTk):
                     hora_da_fala_noite(faloun)
                     self.after(1500, tira_labeln)
 
+        # Back screen function
         def voltar_notas_b():
                 self.frame_notas.place_forget()
                 self.frame_central.pack(pady=20)
 
+        # Note-taking function after a search
         def escolha_comecar_b(escolha):
+                    # check what the person chose
                     if escolha == "Nota":
                         def voltar_anota_b():
                             self.frame_notas.place(x=20, y=0)
                             self.frame_anota.pack_forget()
 
+                        # Save the note
                         def salvar_texto_b():
                             data_atual_nota = time.strftime("%d/%m/%Y")
                             titulo = self.titulo.get()
@@ -324,12 +334,17 @@ class janela_principal(CTk):
                             fonte = self.tamanho_fonte.get()
                             data_c = data_atual_nota
                             materia = self.tipo_nota.get()
+                            # Sets the default font size if none is selected
                             if fonte == "Tamanho Da Fonte...":
                                 fonte = 12
+                            # Sets the default value if none is selected
                             if materia == "Tipo De Notas...":
                                 materia = "Outros Estudos"
+                                # Check that everything has been filled out correctly
                                 if len(titulo) >= 3 and len(titulo) < 30 and len(anotacao) >= 3 and len(anotacao) < 500:
+                                    # Save
                                     guarda_titulo_nota(titulo, anotacao, fonte, data_c, materia)
+                                    # Check if it actually saved
                                     verificacao = verifica_guarda_titulo()
                                 if verificacao == False:
                                     def tira_salvo():
@@ -361,6 +376,7 @@ class janela_principal(CTk):
                                 self.erro_nota.place(x=15, y=4)
                                 self.after(1400, tira_erro)
                     
+                        # Changes the title field placeholder depending on the type of note chosen
                         def muda_titulo_b(nota_escolha):
                             if nota_escolha == "Português":
                                 self.titulo.configure(placeholder_text="Gramática, literatura, redação...")
@@ -384,6 +400,7 @@ class janela_principal(CTk):
                                 self.titulo.configure(placeholder_text="Título...")
                                 self.tipo_nota.configure(fg_color=cls, button_color=cls, button_hover_color=ch)
 
+                        # Change the font size of the note text to the chosen size
                         def fonte_tamanho_b(tamanho):
                             if tamanho == "8":
                                 self.texto.configure(font=fonte_8)
@@ -402,9 +419,11 @@ class janela_principal(CTk):
                             elif tamanho == "22":
                                 self.texto.configure(font=fonte_22)
 
+                        # Delete text if the button is clicked
                         def apaga_texto_b(evento):
                             self.texto.delete("0.0", END)
 
+                        # Note read function
                         def ler_b():
                             self.botao_leitura_b.configure(state=DISABLED)
                             def ler_titulo_b():
@@ -416,6 +435,7 @@ class janela_principal(CTk):
                                     voz.setProperty('rate', 127)
                                     voz.say(texto_b)
                                     voz.runAndWait()
+                                # Error messages
                                 elif len(titulo_b) < 3 or len(titulo_b) > 30:
                                         def tira_erro_b():
                                             self.erro_titulo_b.destroy()
@@ -439,10 +459,12 @@ class janela_principal(CTk):
                             self.thread_ler_titulo_b = threading.Thread(target=ler_titulo_b, daemon=True)
                             self.thread_ler_titulo_b.start()
 
+                        # Bold function
                         def negrito(evento):
                             self.texto._textbox.tag_add("negrito", "sel.first", "sel.last")
                             self.texto._textbox.tag_configure("negrito", font=fonte_negrito)
 
+                        # Screen Properties
                         self.frame_notas.place_forget() 
                         self.frame_anota = CTkFrame(self, width=450, height=340, fg_color=pg)
                         self.frame_anota.pack(pady=20)
@@ -467,17 +489,21 @@ class janela_principal(CTk):
                         self.botao_leitura_b = CTkButton(self.frame_anota, text="Ler", image=leitura, fg_color=cls, width=4, height=22, border_color="black", border_width=2, corner_radius=23, cursor="hand2", command=ler_b, hover_color=ch)
                         self.botao_leitura_b.place(x=308, y=295)
                     
+                    # If it's code
                     elif escolha == "Código":
                         def voltar_code():
                             self.frame_codigo.pack_forget()
                             self.frame_notas.place(x=20, y=0)
                         
+                        # Clears description if the button is clicked
                         def apaga_descricao(evento):
                             self.descricao.delete("0.0", END)
                         
+                        # Clears code if the button is clicked
                         def apaga_texto_codigo(evento):
                             self.texto_codigo.delete("0.0", END)
 
+                        # Changes the font size of the code to the chosen size
                         def fonte_tamanho_codigo(tamanho):
                             if tamanho == "8":
                                 self.texto_codigo.configure(font=fonte_8)
@@ -496,6 +522,7 @@ class janela_principal(CTk):
                             elif tamanho == "22":
                                 self.texto_codigo.configure(font=fonte_22)
 
+                        # Changes the font size of the description to the chosen size
                         def fonte_tamanho_descricao(tamanho):
                             if tamanho == "8":
                                 self.descricao.configure(font=fonte_8)
@@ -514,6 +541,7 @@ class janela_principal(CTk):
                             elif tamanho == "22":
                                 self.descricao.configure(font=fonte_22)
                             
+                        # Sets the language selected by the user
                         def lang(lang_escolhida):
                             if lang_escolhida == "Python":
                                 self.texto_codigo.configure(language="python")
@@ -538,6 +566,7 @@ class janela_principal(CTk):
                             elif lang_escolhida == "PHP":
                                 self.texto_codigo.configure(language="php")
                         
+                        # Sets the theme selected by the user
                         def tema(tema_escolhido):
                             if tema_escolhido == "Arduino":
                                 self.texto_codigo.configure(theme="arduino")
@@ -564,7 +593,9 @@ class janela_principal(CTk):
                             elif tema_escolhido == "Inkpot":
                                 self.texto_codigo.configure(theme="inkpot")
 
+                        # Save the code and description
                         def salvar_texto_codigo():
+                            # Get data
                             data_atual_codigo = time.strftime("%d/%m/%Y")
                             titulo_codigo = self.titulo_codigo.get().strip().capitalize()
                             descricao = self.descricao.get("1.0", "end").strip().capitalize()
@@ -574,6 +605,7 @@ class janela_principal(CTk):
                             tema = self.tema.get().lower()
                             linguagem = self.linguagem.get().lower()
                             data_c = data_atual_codigo
+                            # Checks
                             if fonte_codigo == "Tamanho Da Fonte...":
                                 fonte_codigo = 12
                             if fonte_descricao == "Tamanho Da Fonte...":
@@ -598,12 +630,14 @@ class janela_principal(CTk):
                                     self.label_salvo = CTkLabel(self.frame_codigo, text="Salvo com sucesso!!", text_color="#2E6F40", font=fonte_erros_inter, fg_color=pg)
                                     self.label_salvo.place(x=75, y=2)
                                     self.after(1400, tira_salvo)
+                                # Error messages
                                 else:
                                     def tira_erro_salvo():
                                         self.label_erro_salvo.destroy()
                                     self.label_erro_salvo = CTkLabel(self.frame_codigo, text="Não Salvou!!!", text_color="#E21010", font=fonte_erros_inter)
                                     self.label_salvo.place(x=75, y=2)
                                     self.after(1400, tira_erro_salvo)
+                            # Error messages
                             elif len(titulo_codigo) < 3 or len(titulo_codigo) > 30:
                                 def tira_erro():
                                     self.erro_titulo.destroy()
@@ -623,6 +657,7 @@ class janela_principal(CTk):
                                 self.erro_nota.place(x=288, y=30)
                                 self.after(1400, tira_erro)
 
+                        # Function to read the description
                         def ler_descricao():
                             self.botao_leitura_codigos.configure(state=DISABLED)
                             def ler_texto():
@@ -634,6 +669,7 @@ class janela_principal(CTk):
                                     voz.setProperty('rate', 127)
                                     voz.say(descricao)
                                     voz.runAndWait()
+                                # Error message
                                 elif len(titulo_codigo) < 3 or len(titulo_codigo) > 30:
                                     def tira_erro():
                                         self.erro_titulo.destroy()
