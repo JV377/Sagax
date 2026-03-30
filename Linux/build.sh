@@ -16,28 +16,26 @@ python3 -m venv .venv
 source .venv/bin/activate
 
 pip install --upgrade pip
-pip install customtkinter CTkToolTip pyttsx3 Pillow pygments pyinstaller
+pip install customtkinter CTkToolTip pyttsx3 Pillow pygments pyinstaller CustomtkinterCodeViewer
 
-if [ ! -f "linuxdeploy-x86_64.AppImage" ]; then
-    wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
-    chmod +x linuxdeploy-x86_64.AppImage
-fi
-
-if [ ! -f "linuxdeploy-plugin-appimage-x86_64.AppImage" ]; then
-    wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage" -O appimagetool-x86_64.AppImage
+if [ ! -f "appimagetool-x86_64.AppImage" ]; then
+    wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
     chmod +x appimagetool-x86_64.AppImage
 fi
 
 CTK_PATH=$(python3 -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))")
+CCV_PATH=$(python3 -c "import CustomtkinterCodeViewer; import os; print(os.path.dirname(CustomtkinterCodeViewer.__file__))")
 
 rm -rf build dist __pycache__ *.spec AppDir
 
 pyinstaller --noconfirm --onefile \
     --add-data "imagens_app:imagens_app" \
     --add-data "$CTK_PATH:customtkinter" \
+    --add-data "$CCV_PATH:CustomtkinterCodeViewer" \
     --add-data "CTkCodeBox:CTkCodeBox" \
     --hidden-import "customtkinter" \
     --hidden-import "CTkToolTip" \
+    --hidden-import "CustomtkinterCodeViewer" \
     --hidden-import "pyttsx3" \
     --hidden-import "pyttsx3.drivers" \
     --hidden-import "pyttsx3.drivers.espeak" \
@@ -47,6 +45,7 @@ pyinstaller --noconfirm --onefile \
     --hidden-import "PIL" \
     --hidden-import "PIL._tkinter_finder" \
     --collect-all customtkinter \
+    --collect-all CustomtkinterCodeViewer \
     --name "$APP_NAME" \
     interface.py
 
@@ -60,9 +59,8 @@ if [ -f "imagens_app/logo.png" ]; then
     cp "imagens_app/logo.png" "AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png"
     cp "imagens_app/logo.png" "AppDir/$APP_NAME.png"
 else
-    convert -size 256x256 xc:#3b82f6 "AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png" 2>/dev/null || \
     python3 -c "
-from PIL import Image, ImageDraw
+from PIL import Image
 img = Image.new('RGB', (256, 256), color='#3b82f6')
 img.save('AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png')
 import shutil; shutil.copy('AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png', 'AppDir/$APP_NAME.png')
