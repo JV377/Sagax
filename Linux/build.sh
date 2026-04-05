@@ -1,125 +1,99 @@
 #!/bin/bash
-set -e
 
 APP_NAME="SponteStudy"
-EXEC_NAME="sponte-study"
-DESKTOP_NAME="sponte-study"
-VERSION="1.0.0"
 
-PACMAN_DEPS=(
-  "tk"
-  "espeak-ng"
-  "fuse2"
-  "python-pip"
-)
+echo "Iniciando o processo de build para $APP_NAME..."
 
-echo "==> Verificando dependências do sistema..."
-MISSING_PACMAN=()
-for dep in "${PACMAN_DEPS[@]}"; do
-  if ! pacman -Q "$dep" &>/dev/null; then
-    MISSING_PACMAN+=("$dep")
-  fi
-done
-
-if [ ${#MISSING_PACMAN[@]} -gt 0 ]; then
-  echo "    Instalando: ${MISSING_PACMAN[*]}"
-  sudo pacman -S --noconfirm "${MISSING_PACMAN[@]}"
-else
-  echo "    Todas as dependências do sistema OK."
+if ! command -v python3 &> /dev/null; then
+    echo "Erro: Python3 não encontrado."
+    exit 1
 fi
 
+sudo apt-get install -y python3-pip python3-venv python3-tk
+sudo apt-get install -y espeak espeak-data libespeak-dev python3-dbus file
 
-echo "==> Verificando dependências Python..."
-MISSING_PIP=()
+python3 -m venv .venv
+source .venv/bin/activate
 
-python3 -c "import customtkinter" &>/dev/null 2>&1     || MISSING_PIP+=("customtkinter")
-python3 -c "import CTkToolTip" &>/dev/null 2>&1         || MISSING_PIP+=("CTkToolTip")
-python3 -c "import CustomtkinterCodeViewer" &>/dev/null || MISSING_PIP+=("CustomtkinterCodeViewer")
-python3 -c "import tklinenums" &>/dev/null 2>&1         || MISSING_PIP+=("tklinenums")
-python3 -c "import pyttsx3" &>/dev/null 2>&1            || MISSING_PIP+=("pyttsx3")
-python3 -c "import PIL" &>/dev/null 2>&1                || MISSING_PIP+=("pillow")
-python3 -c "import pygments" &>/dev/null 2>&1           || MISSING_PIP+=("pygments")
-python3 -c "import darkdetect" &>/dev/null 2>&1         || MISSING_PIP+=("darkdetect")
-python3 -c "import PyInstaller" &>/dev/null 2>&1        || MISSING_PIP+=("pyinstaller")
+pip install --upgrade pip
+pip install customtkinter CTkToolTip pyttsx3 Pillow pygments pyinstaller CustomtkinterCodeViewer
 
-# Remover duplicatas
-MISSING_PIP=($(echo "${MISSING_PIP[@]}" | tr ' ' '\n' | sort -u | tr '\n' ' '))
-
-if [ ${#MISSING_PIP[@]} -gt 0 ]; then
-  echo "    Instalando: ${MISSING_PIP[*]}"
-  pip install "${MISSING_PIP[@]}" --break-system-packages
-else
-  echo "    Todas as dependências Python OK."
+if [ ! -f "appimagetool-x86_64.AppImage" ]; then
+    wget -q "https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage"
+    chmod +x appimagetool-x86_64.AppImage
 fi
 
-export PATH="$HOME/.local/bin:$PATH"
+CTK_PATH=$(python3 -c "import customtkinter; import os; print(os.path.dirname(customtkinter.__file__))")
+CCV_PATH=$(python3 -c "import CustomtkinterCodeViewer; import os; print(os.path.dirname(CustomtkinterCodeViewer.__file__))")
 
-echo "==> Limpando build anterior..."
-rm -rf build/ dist/ *.spec "${APP_NAME}.AppDir" "${APP_NAME}-${VERSION}-x86_64.AppImage"
+rm -rf build dist __pycache__ *.spec AppDir
 
-echo "==> Compilando com PyInstaller..."
-pyinstaller --onefile \
-  --add-data "imagens_app:imagens_app" \
-  --add-data "CTkCodeBox:CTkCodeBox" \
-  --hidden-import customtkinter \
-  --hidden-import CTkToolTip \
-  --hidden-import CTkCodeBox \
-  --hidden-import pyttsx3 \
-  --hidden-import pyttsx3.drivers \
-  --hidden-import pyttsx3.drivers.espeak \
-  --hidden-import PIL \
-  --hidden-import PIL.Image \
-  --hidden-import tklinenums \
-  --hidden-import CustomtkinterCodeViewer \
-  --hidden-import pygments \
-  --collect-all customtkinter \
-  --collect-all CTkToolTip \
-  --collect-all pygments \
-  interface.py
+pyinstaller --noconfirm --onefile \
+    --add-data "imagens_app:imagens_app" \
+    --add-data "$CTK_PATH:customtkinter" \
+    --add-data "$CCV_PATH:CustomtkinterCodeViewer" \
+    --add-data "CTkCodeBox:CTkCodeBox" \
+    --hidden-import "customtkinter" \
+    --hidden-import "CTkToolTip" \
+    --hidden-import "CustomtkinterCodeViewer" \
+    --hidden-import "pyttsx3" \
+    --hidden-import "pyttsx3.drivers" \
+    --hidden-import "pyttsx3.drivers.espeak" \
+    --hidden-import "pygments" \
+    --hidden-import "pygments.lexers" \
+    --hidden-import "pygments.formatters" \
+    --hidden-import "PIL" \
+    --hidden-import "PIL._tkinter_finder" \
+    --collect-all customtkinter \
+    --collect-all CustomtkinterCodeViewer \
+    --name "$APP_NAME" \
+    interface.py
 
-echo "==> Montando AppDir..."
-mkdir -p "${APP_NAME}.AppDir/usr/bin"
-mkdir -p "${APP_NAME}.AppDir/usr/share/icons"
+mkdir -p AppDir/usr/bin
+mkdir -p AppDir/usr/share/applications
+mkdir -p AppDir/usr/share/icons/hicolor/256x256/apps
 
-cp dist/interface "${APP_NAME}.AppDir/usr/bin/${EXEC_NAME}"
-cp imagens_app/Sponte.png "${APP_NAME}.AppDir/${DESKTOP_NAME}.png"
-cp imagens_app/Sponte.png "${APP_NAME}.AppDir/usr/share/icons/${DESKTOP_NAME}.png"
+cp "dist/$APP_NAME" "AppDir/usr/bin/$APP_NAME"
 
-echo "==> Criando AppRun..."
-cat > "${APP_NAME}.AppDir/AppRun" << 'EOF'
-#!/bin/bash
-HERE="$(dirname "$(readlink -f "${0}")")"
-exec "$HERE/usr/bin/sponte-study" "$@"
-EOF
-chmod +x "${APP_NAME}.AppDir/AppRun"
+if [ -f "imagens_app/logo.png" ]; then
+    cp "imagens_app/logo.png" "AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png"
+    cp "imagens_app/logo.png" "AppDir/$APP_NAME.png"
+else
+    python3 -c "
+from PIL import Image
+img = Image.new('RGB', (256, 256), color='#3b82f6')
+img.save('AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png')
+import shutil; shutil.copy('AppDir/usr/share/icons/hicolor/256x256/apps/$APP_NAME.png', 'AppDir/$APP_NAME.png')
+"
+fi
 
-echo "==> Criando .desktop..."
-cat > "${APP_NAME}.AppDir/${DESKTOP_NAME}.desktop" << EOF
+cat > "AppDir/usr/share/applications/$APP_NAME.desktop" << EOF
 [Desktop Entry]
 Name=Sponte Study
-Exec=${EXEC_NAME}
-Icon=${DESKTOP_NAME}
+Exec=$APP_NAME
+Icon=$APP_NAME
 Type=Application
 Categories=Education;
 EOF
 
-echo "==> Verificando appimagetool..."
-if [ ! -f "appimagetool-x86_64.AppImage" ]; then
-  echo "    Baixando appimagetool..."
-  wget -q --show-progress \
-    https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
-  chmod +x appimagetool-x86_64.AppImage
+cp "AppDir/usr/share/applications/$APP_NAME.desktop" "AppDir/$APP_NAME.desktop"
+
+cat > "AppDir/AppRun" << 'EOF'
+#!/bin/bash
+HERE="$(dirname "$(readlink -f "${0}")")"
+exec "$HERE/usr/bin/SponteStudy" "$@"
+EOF
+chmod +x "AppDir/AppRun"
+
+ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir "${APP_NAME}.AppImage"
+
+if [ -f "${APP_NAME}.AppImage" ]; then
+    chmod +x "${APP_NAME}.AppImage"
+    echo "✅ AppImage gerado: ${APP_NAME}.AppImage"
 else
-  echo "    appimagetool já existe, pulando download."
+    echo "❌ Falha ao gerar AppImage."
+    deactivate
+    exit 1
 fi
 
-echo "==> Gerando AppImage..."
-ARCH=x86_64 ./appimagetool-x86_64.AppImage \
-  "${APP_NAME}.AppDir" \
-  "${APP_NAME}-${VERSION}-x86_64.AppImage"
-
-chmod +x "${APP_NAME}-${VERSION}-x86_64.AppImage"
-
-echo ""
-echo "✅ Pronto! AppImage gerado: ${APP_NAME}-${VERSION}-x86_64.AppImage"
-echo "   Execute com: ./${APP_NAME}-${VERSION}-x86_64.AppImage"
+deactivate

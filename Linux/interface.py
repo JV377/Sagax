@@ -1395,9 +1395,7 @@ class janela_principal(CTk):
                             self.botao_salvar_ec.place(x=236, y=303)
                             self.botao_deletar_ec.place(x=298, y=303)
                             self.botao_leitura_ec.place(x=398, y=227)
-                        lista_codigos = self.frame_codigos.winfo_children()
-                        for lc in lista_codigos:
-                            lc.destroy()
+                        self.frame_codigos.destroy()
                         
                         self.frame_notas.destroy()
                         self.frame_codigos = CTkScrollableFrame(self, width=440, height=330, fg_color=pg)
