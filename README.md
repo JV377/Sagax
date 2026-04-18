@@ -1,4 +1,4 @@
-# Sponte Study
+# Sagax
 ### A Free, Open-Source, and Offline Learning Application
 
 <p align="center">
