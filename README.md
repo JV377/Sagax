@@ -7,17 +7,17 @@
 
 ## Overview
 
-Sponte Study is a free, open-source, and 100% offline application designed to revolutionize the way you learn new things. With its innovative features, such as voice reading of notes and syntax highlighting for code, Sponte Study aims to provide a seamless and engaging learning experience.
+Sagax is a free, open-source, and 100% offline application designed to revolutionize the way you learn new things. With its innovative features, such as voice reading of notes and syntax highlighting for code, Sponte Study aims to provide a seamless and engaging learning experience.
 
 ## Key Features
 
 - **Voice Reading of Notes**: Listen to your notes in a clear and natural voice, perfect for hands-free learning.
 - **Syntax Highlighting for Code**: Easily identify and understand code syntax with our intuitive highlighting feature.
-- **Community-Driven**: Sponte Study is an open-source application, allowing the community to contribute and shape the future of learning.
+- **Community-Driven**: Sagax is an open-source application, allowing the community to contribute and shape the future of learning.
   
 ## Priorities
 
-At Sponte Study, we prioritize:
+At Sagax, we prioritize:
 
 - **Privacy**: Your data and security are our top concern.
 - **Innovating inL Learning**: We are investing in new learning resources.
@@ -29,9 +29,9 @@ Our application boasts a minimally modern and attractive interface, making it ea
 
 ## Get Started
 
-Download Sponte Study today and experience the future of learning:
+Download Sagax today and experience the future of learning:
 
-https://jv377.itch.io/sponte
+https://jv377.itch.io/sagax
 
 ## Find us
 
